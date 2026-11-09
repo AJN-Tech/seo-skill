@@ -1098,22 +1098,29 @@ function auditSiteLevel(audit, pages, context) {
     });
   });
 
-  // Internal links resolve (local builds) and are not broken.
-  pages.forEach((page) => {
-    (page.internalLinks || []).forEach((link) => {
-      if (!lookup(link)) {
-        audit.add({
-          code: 'internal-link-broken',
-          severity: 'high',
-          area: 'links',
-          page: page.url,
-          evidence: 'links to ' + link + ' which does not exist in this build',
-          fix: 'Fix or remove the link; ensure the target is a canonical URL.',
-          validation: 'Re-run audit after rebuilding.'
-        });
-      }
+  // Internal links resolve (local builds) and are not broken. Use the full file
+  // map, not only the pages that fit within --max-pages, otherwise a page cap
+  // produces false positives for links to unaudited but existing pages.
+  if (context.local && context.knownUrls) {
+    const known = context.knownUrls;
+    const isKnown = (link) =>
+      known.has(link) || known.has(link.replace(/\/$/, '')) || known.has(link + '/');
+    pages.forEach((page) => {
+      (page.internalLinks || []).forEach((link) => {
+        if (!isKnown(link)) {
+          audit.add({
+            code: 'internal-link-broken',
+            severity: 'high',
+            area: 'links',
+            page: page.url,
+            evidence: 'links to ' + link + ' which does not exist in this build',
+            fix: 'Fix or remove the link; ensure the target is a canonical URL.',
+            validation: 'Re-run audit after rebuilding.'
+          });
+        }
+      });
     });
-  });
+  }
 
   // Near-duplicate content.
   const grams = pages
@@ -1166,7 +1173,7 @@ function jaccard(left, right) {
 // Directory and URL crawling
 // ---------------------------------------------------------------------------
 
-async function walkHtml(dir) {
+async function walkFiles(dir) {
   const out = [];
   async function walk(current) {
     const entries = await readdir(current, { withFileTypes: true });
@@ -1174,11 +1181,16 @@ async function walkHtml(dir) {
       if (entry.name.startsWith('.') || entry.name === 'node_modules') continue;
       const full = path.join(current, entry.name);
       if (entry.isDirectory()) await walk(full);
-      else if (entry.isFile() && entry.name.endsWith('.html')) out.push(full);
+      else if (entry.isFile()) out.push(full);
     }
   }
   await walk(dir);
   return out;
+}
+
+async function walkHtml(dir) {
+  const files = await walkFiles(dir);
+  return files.filter((file) => file.endsWith('.html'));
 }
 
 function pageUrlForFile(file, root, base) {
@@ -1219,13 +1231,28 @@ async function auditLocalDirectory(audit, dir, options) {
   }
   const files = await walkHtml(root);
   if (!files.length) throw new Error('no .html files under ' + root);
-  const selected = files.slice(0, options.maxPages);
-  const pageUrls = new Set();
-  selected.forEach((file) => {
-    const pageUrl = pageUrlForFile(file, root, options.base);
-    pageUrls.add(pageUrl);
-    pageUrls.add(pageUrl.replace(/\/$/, ''));
+  // Map every file (pages and assets) so link resolution does not depend on
+  // --max-pages and assets are not reported as broken internal links.
+  const knownUrls = new Set();
+  const allFiles = await walkFiles(root);
+  allFiles.forEach((file) => {
+    if (file.endsWith('.html')) {
+      const pageUrl = pageUrlForFile(file, root, options.base);
+      knownUrls.add(pageUrl);
+      knownUrls.add(pageUrl.replace(/\/$/, ''));
+      return;
+    }
+    const relative = path.relative(root, file).split(path.sep).join('/');
+    if (options.base) {
+      try {
+        knownUrls.add(new URL(relative, options.base.endsWith('/') ? options.base : options.base + '/').href);
+      } catch (error) {
+        /* ignore malformed base */
+      }
+    }
+    knownUrls.add('/' + relative);
   });
+  const selected = files.slice(0, options.maxPages);
 
   for (const file of selected) {
     const html = await loadLocalFile(file);
@@ -1242,7 +1269,7 @@ async function auditLocalDirectory(audit, dir, options) {
       headers: {},
       alternates: hreflangLinks(tags, pageUrl)
     };
-    page.internalLinks = collectInternalLinks(tags, pageUrl, pageUrls, options.base);
+    page.internalLinks = collectInternalLinks(tags, pageUrl, knownUrls, options.base);
     audit.pages.push(page);
     auditPage(audit, page, { expectedLang: expectedLangFromPath(pageUrl) });
   }
@@ -1260,11 +1287,11 @@ async function auditLocalDirectory(audit, dir, options) {
   const base = options.base || 'file://' + root;
   auditRobots(audit, robots || { status: 404, html: '' }, base);
   auditSitemap(audit, sitemap || { status: 404, html: '' }, base, {
-    pageUrls
+    pageUrls: knownUrls
   });
   auditLlms(audit, llms, base);
-  auditSiteLevel(audit, audit.pages, { base, local: true });
-  options.pageUrls = pageUrls;
+  auditSiteLevel(audit, audit.pages, { base, local: true, knownUrls });
+  options.pageUrls = knownUrls;
 }
 
 function collectInternalLinks(tags, pageUrl, pageUrls, base) {
@@ -1413,7 +1440,7 @@ async function auditRemote(audit, target, options) {
     });
   }
   audit.pages = pages;
-  auditSiteLevel(audit, pages, { base: origin, local: false });
+  auditSiteLevel(audit, pages, { base: origin, local: false, knownUrls: null });
 
   // Header checks on the primary document and one asset.
   const home = pages[0];
