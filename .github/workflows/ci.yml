@@ -4,27 +4,36 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: test (node ${{ matrix.node }})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: [22, 24]
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
 
       - name: Syntax checks
         run: |
+          node --version
           node --check scripts/seo-audit.mjs
           node --check bin/seo-skill.mjs
           sh -n install.sh uninstall.sh
@@ -36,10 +45,10 @@ jobs:
       - name: Test suite
         run: node test/run.mjs
 
-      - name: Audit the good fixture (must have no high/critical findings)
+      - name: Audit the good fixture (must pass --fail-on high)
         run: node scripts/seo-audit.mjs audit test/fixtures/good --base https://good.example/ --fail-on high --json > /dev/null
 
-      - name: Audit the broken fixture (must have high findings)
+      - name: Audit the broken fixture (must fail --fail-on high)
         run: |
           set +e
           node scripts/seo-audit.mjs audit test/fixtures/broken --base https://broken.example/ --fail-on high --json > /dev/null
