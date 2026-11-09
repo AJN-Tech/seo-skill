@@ -41,6 +41,10 @@ npx -y github:AJN-Tech/seo-skill check      # verify the install
 npx -y github:AJN-Tech/seo-skill uninstall  # remove it
 ```
 
+The package is npm-ready (`package.json` has `bin`, `files`, `prepublishOnly`); after
+one `npm publish` the same commands work as `npx -y seo-skill ...`. See
+[docs/PUBLISHING.md](docs/PUBLISHING.md) for the registry steps.
+
 The same CLI can run the auditor directly:
 
 ```bash

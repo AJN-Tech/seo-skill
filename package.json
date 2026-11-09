@@ -12,7 +12,8 @@
     "test": "node test/run.mjs",
     "validate": "node scripts/validate-skill.mjs",
     "audit": "node scripts/seo-audit.mjs",
-    "check": "sh -n install.sh uninstall.sh && node --check scripts/seo-audit.mjs && node --check bin/seo-skill.mjs && node scripts/validate-skill.mjs && node test/run.mjs"
+    "check": "sh -n install.sh uninstall.sh && node --check scripts/seo-audit.mjs && node --check bin/seo-skill.mjs && node scripts/validate-skill.mjs && node test/run.mjs",
+    "prepublishOnly": "node scripts/validate-skill.mjs && node test/run.mjs"
   },
   "repository": {
     "type": "git",
