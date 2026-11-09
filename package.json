@@ -1,6 +1,6 @@
 {
   "name": "seo-skill",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "description": "Portable Agent Skill for SEO audits, fixes and verification across AI coding harnesses.",
@@ -12,7 +12,7 @@
     "test": "node test/run.mjs",
     "validate": "node scripts/validate-skill.mjs",
     "audit": "node scripts/seo-audit.mjs",
-    "check": "sh -n install.sh uninstall.sh && node --check scripts/seo-audit.mjs && node scripts/validate-skill.mjs && node test/run.mjs"
+    "check": "sh -n install.sh uninstall.sh && node --check scripts/seo-audit.mjs && node --check bin/seo-skill.mjs && node scripts/validate-skill.mjs && node test/run.mjs"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,21 @@
     "hreflang",
     "llms-txt",
     "core-web-vitals"
-  ]
+  ],
+  "bin": {
+    "seo-skill": "./bin/seo-skill.mjs"
+  },
+  "files": [
+    "bin/",
+    "SKILL.md",
+    "references/",
+    "scripts/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

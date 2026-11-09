@@ -133,6 +133,67 @@ if (existsSync(outFile)) {
 const missing = run(['audit', path.join(ROOT, 'nope'), '--json']);
 check('missing target exits 2', missing.status === 2, 'status ' + missing.status);
 
+// --- npx-compatible CLI ---------------------------------------------------
+const BIN = path.join(ROOT, 'bin', 'seo-skill.mjs');
+const cliHome = mkdtempSync(path.join(tmpdir(), 'seo-cli-home-'));
+const cliProject = mkdtempSync(path.join(tmpdir(), 'seo-cli-project-'));
+const cliEnv = { ...process.env, SEO_SKILL_HOME: cliHome };
+function runCli(args) {
+  return spawnSync(process.execPath, [BIN, ...args], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    env: cliEnv
+  });
+}
+const version = runCli(['--version']);
+check('CLI: --version exits 0', version.status === 0 && /^\d+\.\d+\.\d+/.test(version.stdout.trim()),
+  version.stdout.trim());
+const cliInstall = runCli(['install', '--all']);
+check(
+  'CLI: install --all writes both targets',
+  cliInstall.status === 0 &&
+    existsSync(path.join(cliHome, '.agents', 'skills', 'seo', 'SKILL.md')) &&
+    existsSync(path.join(cliHome, '.claude', 'skills', 'seo', 'SKILL.md')),
+  cliInstall.stderr.slice(0, 200)
+);
+const cliCheck = runCli(['check', '--all']);
+check('CLI: check --all passes', cliCheck.status === 0, cliCheck.stdout.trim().slice(0, 200));
+const cliProjectRun = runCli(['install', '--project', cliProject]);
+check(
+  'CLI: --project installs both project targets',
+  cliProjectRun.status === 0 &&
+    existsSync(path.join(cliProject, '.agents', 'skills', 'seo', 'SKILL.md')) &&
+    existsSync(path.join(cliProject, '.claude', 'skills', 'seo', 'SKILL.md')),
+  cliProjectRun.stderr.slice(0, 200)
+);
+const pointerDir = mkdtempSync(path.join(tmpdir(), 'seo-cli-agents-'));
+const pointerRun = runCli(['install', '--agents-md', pointerDir]);
+check(
+  'CLI: standalone --agents-md writes the pointer',
+  pointerRun.status === 0 && existsSync(path.join(pointerDir, 'AGENTS.md')) &&
+    readFileSync(path.join(pointerDir, 'AGENTS.md'), 'utf8').includes('seo-skill:start'),
+  pointerRun.stderr.slice(0, 200)
+);
+const cliAudit = runCli(['audit', GOOD, '--base', BASE, '--json']);
+let cliAuditJson = null;
+try {
+  cliAuditJson = JSON.parse(cliAudit.stdout);
+} catch (error) {
+  /* handled by the check */
+}
+check(
+  'CLI: audit delegates to the auditor',
+  cliAudit.status === 0 && cliAuditJson && cliAuditJson.summary.pages >= 3,
+  cliAudit.stderr.slice(0, 200)
+);
+const cliUninstall = runCli(['uninstall', '--all']);
+check(
+  'CLI: uninstall --all removes both targets',
+  cliUninstall.status === 0 &&
+    !existsSync(path.join(cliHome, '.agents', 'skills', 'seo')) &&
+    !existsSync(path.join(cliHome, '.claude', 'skills', 'seo'))
+);
+
 // --- summary --------------------------------------------------------------
 console.log('');
 console.log(passed + ' passed, ' + failed + ' failed');

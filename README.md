@@ -32,6 +32,24 @@ See [docs/CASE-STUDY-AJENU.md](docs/CASE-STUDY-AJENU.md).
 
 ## Install
 
+Fastest, no clone needed — run the installer from GitHub with `npx`:
+
+```bash
+npx -y github:AJN-Tech/seo-skill            # universal target + Claude Code if detected
+npx -y github:AJN-Tech/seo-skill --all      # force universal + Claude Code
+npx -y github:AJN-Tech/seo-skill check      # verify the install
+npx -y github:AJN-Tech/seo-skill uninstall  # remove it
+```
+
+The same CLI can run the auditor directly:
+
+```bash
+npx -y github:AJN-Tech/seo-skill audit https://example.com
+npx -y github:AJN-Tech/seo-skill audit ./dist --base https://example.com --json
+```
+
+Or clone and use the shell/PowerShell installers:
+
 ```bash
 git clone https://github.com/AJN-Tech/seo-skill.git
 cd seo-skill
@@ -131,6 +149,7 @@ seo-skill/
 ├── references/              # deep dives loaded on demand
 ├── scripts/seo-audit.mjs    # dependency-free read-only auditor
 ├── test/                    # fixtures + assertions (no deps)
+├── bin/seo-skill.mjs        # npx CLI (install/check/uninstall/audit)
 ├── install.sh / install.ps1 # cross-harness installers
 ├── uninstall.sh
 ├── adapters/AGENTS.md       # pointer for harnesses without native skill support
@@ -140,7 +159,7 @@ seo-skill/
 ## Development
 
 ```bash
-node test/run.mjs                         # 41 assertions against good/broken fixtures
+node test/run.mjs                         # tests: auditor + CLI against good/broken fixtures
 node scripts/seo-audit.mjs audit test/fixtures/broken --base https://broken.example/
 sh -n install.sh uninstall.sh            # POSIX syntax check
 ```

@@ -8,6 +8,25 @@ Paths below are global (user) locations. Project-scoped locations are the same r
 paths inside a repository. Verified against the harness docs in November 2026; confirm
 before relying on a new release.
 
+## npx (no clone)
+
+The repository ships an npm-style CLI (`bin/seo-skill.mjs`, `bin` in `package.json`),
+so `npx` can install and manage the skill without cloning:
+
+```bash
+npx -y github:AJN-Tech/seo-skill                 # install
+npx -y github:AJN-Tech/seo-skill --all           # universal + Claude Code
+npx -y github:AJN-Tech/seo-skill check
+npx -y github:AJN-Tech/seo-skill uninstall
+npx -y github:AJN-Tech/seo-skill audit <url|dir>
+```
+
+`npx` resolves the GitHub repository as a package spec and runs the `seo-skill` bin.
+`--project`, `--harness`, `--native`, `--link`, `--force`, `--dry-run` and
+`--agents-md` are supported by the CLI as well. The package is npm-ready
+(`npm publish` from a maintainer); after publishing, the command becomes
+`npx -y seo-skill ...`.
+
 ## Universal target (recommended)
 
 `~/.agents/skills/seo/` — the cross-agent alias. One install covers:

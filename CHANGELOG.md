@@ -3,6 +3,17 @@
 All notable changes to this project are documented here.
 Format: [Keep a Changelog](https://keepachangelog.com/); versioning: semver.
 
+## [1.1.0] — 2026-11-09
+
+### Added
+- `bin/seo-skill.mjs` + `bin` in `package.json`: an npm-style CLI so the skill
+  installs without cloning:
+  `npx -y github:AJN-Tech/seo-skill` (also `check`, `uninstall`, `audit`, plus
+  `--all/--harness/--native/--project/--agents-md/--link/--dry-run`).
+- npm package metadata (`name: seo-skill`, `files`, `publishConfig`) so the repo can be
+  published to the npm registry with `npm publish`.
+- CLI assertions in the test suite and a syntax check in CI.
+
 ## [1.0.0] — 2026-11-09
 
 ### Added
