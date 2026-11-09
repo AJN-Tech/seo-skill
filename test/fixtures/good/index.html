@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Good Example — a valid test page</title>
+<meta name="description" content="A deliberately valid page used by the seo-audit test suite. It has unique metadata, canonical, hreflang and structured data.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://good.example/">
+<link rel="alternate" hreflang="en" href="https://good.example/">
+<link rel="alternate" hreflang="fr" href="https://good.example/fr/">
+<link rel="alternate" hreflang="x-default" href="https://good.example/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Good Example">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="Good Example — a valid test page">
+<meta property="og:description" content="A deliberately valid page used by the seo-audit test suite.">
+<meta property="og:url" content="https://good.example/">
+<meta property="og:image" content="https://good.example/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Good Example preview">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+  body { font-family: system-ui, sans-serif; margin: 2rem; color: #1d1b16; }
+  main { max-width: 68ch; }
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Organization","@id":"https://good.example/#organization","name":"Good Example","url":"https://good.example/"},{"@type":"WebSite","@id":"https://good.example/#website","url":"https://good.example/","name":"Good Example","inLanguage":"en"},{"@type":"WebPage","@id":"https://good.example/#webpage","url":"https://good.example/","name":"Good Example — a valid test page","description":"A valid test page","isPartOf":{"@id":"https://good.example/#website"},"inLanguage":"en"}]}
+</script>
+</head>
+<body>
+<main>
+<h1>Good Example</h1>
+<p>This page exists so the audit tool has a known-good target. It describes a small business technology service in enough plain language that a reader understands who it is for, what they receive, how setup works and what happens next.</p>
+<p>The page links to a <a href="/services/example/">friendly service page</a> and to the <a href="/fr/">French version</a>. Those targets exist in the build, so the internal-link check should pass. The canonical URL is the page itself and the hreflang set is reciprocal with the French page.</p>
+<p>There is one image below. It has alt text and intrinsic dimensions. There is no render-blocking stylesheet or synchronous script in the head, no invalid JSON-LD, and no accidental duplicate title. The page is intentionally calm and specific rather than keyword stuffed.</p>
+<img src="/assets/shot.png" alt="A product dashboard with a stock table" width="800" height="396">
+</main>
+</body>
+</html>

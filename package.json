@@ -1,0 +1,32 @@
+{
+  "name": "seo-skill",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Portable Agent Skill for SEO audits, fixes and verification across AI coding harnesses.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node test/run.mjs",
+    "validate": "node scripts/validate-skill.mjs",
+    "audit": "node scripts/seo-audit.mjs",
+    "check": "sh -n install.sh uninstall.sh && node --check scripts/seo-audit.mjs && node scripts/validate-skill.mjs && node test/run.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AJN-Tech/seo-skill.git"
+  },
+  "keywords": [
+    "seo",
+    "agent-skills",
+    "claude-code",
+    "codex",
+    "opencode",
+    "deepseek-harness",
+    "hreflang",
+    "llms-txt",
+    "core-web-vitals"
+  ]
+}

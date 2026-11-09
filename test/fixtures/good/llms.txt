@@ -1,0 +1,19 @@
+# Good Example
+
+> Good Example is a tiny fixture site used to test the seo-audit tool. It sells a made-up service and must never be deployed.
+
+This file is intentionally short. It links two real pages in the fixture build and a language version.
+
+## Services
+
+- [Example service](https://good.example/services/example/): A valid example service page.
+
+## Languages
+
+- [English](https://good.example/)
+- [Français](https://good.example/fr/)
+
+## Contact
+
+- [Website](https://good.example/)
+- [Sitemap](https://good.example/sitemap.xml)

@@ -1,0 +1,18 @@
+# Generated for the seo-audit test fixtures.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://good.example/sitemap.xml
+
+# AI search and answer engines: allowed.
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+
+# Model-training crawlers: opted out.
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /

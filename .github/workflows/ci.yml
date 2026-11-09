@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Syntax checks
+        run: |
+          node --check scripts/seo-audit.mjs
+          sh -n install.sh uninstall.sh
+
+      - name: Validate skill frontmatter
+        run: node scripts/validate-skill.mjs
+
+      - name: Test suite
+        run: node test/run.mjs
+
+      - name: Audit the good fixture (must have no high/critical findings)
+        run: node scripts/seo-audit.mjs audit test/fixtures/good --base https://good.example/ --fail-on high --json > /dev/null
+
+      - name: Audit the broken fixture (must have high findings)
+        run: |
+          set +e
+          node scripts/seo-audit.mjs audit test/fixtures/broken --base https://broken.example/ --fail-on high --json > /dev/null
+          status=$?
+          set -e
+          if [ "$status" -ne 1 ]; then
+            echo "expected exit 1 from the broken fixture, got $status" >&2
+            exit 1
+          fi

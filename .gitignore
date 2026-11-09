@@ -1,0 +1,8 @@
+node_modules/
+.DS_Store
+*.log
+*.tmp
+seo-report.json
+seo-report.md
+.venv/
+__pycache__/

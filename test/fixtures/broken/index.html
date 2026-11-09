@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Broken page</title>
+<meta name="description" content="A deliberately broken page for the seo-audit tests.">
+<link rel="stylesheet" href="/style.css">
+<script src="/blocking.js"></script>
+<link rel="alternate" hreflang="en" href="https://broken.example/">
+<link rel="alternate" hreflang="fr" href="https://broken.example/fr/">
+<script type="application/ld+json">{ this is not valid json </script>
+</head>
+<body>
+<h1>Broken page</h1>
+<h1>Second heading that should be an h2</h1>
+<img src="/assets/x.png">
+<p>This page is intentionally broken so the auditor has something to detect. It has no canonical link, no lang attribute, no viewport meta, two H1 elements and an invalid JSON-LD block. It loads a render-blocking stylesheet and a synchronous script from the head, and the image has no alt text.</p>
+<p>There is no Open Graph block, the hreflang set has no x-default, and the French version does not link back. Internal links below point at a French page, two near-identical service pages and a URL that does not exist in the build. The word count is enough for the page to count as content, so the thin-content rule is not what is being tested here.</p>
+<a href="/fr/">French</a>
+<a href="/services/a/">Service A</a>
+<a href="/services/b/">Service B</a>
+<a href="/missing/">Missing page</a>
+</body>
+</html>
